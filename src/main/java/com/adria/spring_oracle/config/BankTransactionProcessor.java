@@ -7,11 +7,11 @@ import com.adria.spring_oracle.service.EmailService;
 import com.adria.spring_oracle.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -30,26 +30,45 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
             return null; // Ignore cette transaction en cas d'erreur de date
         }
 
-        BankAccount bankAccount = bankAccountRepository.findById(bankTransaction.getAccountID()).orElse(null);
-        if (bankAccount == null) {
+        Optional<BankAccount> optionalBankAccount = bankAccountRepository.findById(bankTransaction.getAccountID());
+        if (optionalBankAccount.isEmpty()) {
             return null; // Ignore cette transaction si le compte est introuvable
         }
 
+        BankAccount bankAccount = optionalBankAccount.get();
         bankTransaction.setBankAccount(bankAccount);
 
         String subject = "Transaction Notification";
         String text = "Your transaction of " + bankTransaction.getAmount() + " has been processed.";
 
-        if ("email".equalsIgnoreCase(bankTransaction.getNotificationMethod())) {
-            String email = bankAccount.getBankClient().getEmail();
-            if (email != null && !email.isEmpty()) {
-                emailService.sendEmail(email, subject, text);
-            }
-        } else if ("sms".equalsIgnoreCase(bankTransaction.getNotificationMethod())) {
-            String phoneNumber = bankAccount.getBankClient().getPhoneNumber();
-            if (phoneNumber != null && !phoneNumber.isEmpty()) {
-                smsService.sendSms(phoneNumber, text);
-            }
+        switch (bankTransaction.getNotificationMethod().toLowerCase()) {
+            case "email":
+                Optional.ofNullable(bankAccount.getBankClient().getEmail())
+                        .filter(email -> !email.isEmpty())
+                        .ifPresent(email -> {
+                            try {
+                                emailService.sendEmail(email, subject, text);
+                            } catch (Exception e) {
+                                e.printStackTrace(); // Log the exception if email sending fails
+                            }
+                        });
+                break;
+
+            case "sms":
+                Optional.ofNullable(bankAccount.getBankClient().getPhoneNumber())
+                        .filter(phoneNumber -> !phoneNumber.isEmpty())
+                        .ifPresent(phoneNumber -> {
+                            try {
+                                smsService.sendSms(phoneNumber, text);
+                            } catch (Exception e) {
+                                e.printStackTrace(); // Log the exception if SMS sending fails
+                            }
+                        });
+                break;
+
+            default:
+                // Handle unexpected notification methods if necessary
+                break;
         }
 
         return bankTransaction;

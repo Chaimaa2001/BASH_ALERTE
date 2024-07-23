@@ -1,41 +1,40 @@
 package com.adria.spring_oracle.service;
 
-
-
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
+import com.infobip.ApiException;
+import com.infobip.api.SmsApi;
+import com.infobip.model.SmsAdvancedTextualRequest;
+import com.infobip.model.SmsDestination;
+import com.infobip.model.SmsResponse;
+import com.infobip.model.SmsTextualMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
-@Transactional
 public class SmsService {
 
-    @Value("${twilio.account_sid}")
-    private String accountSid;
+    @Autowired
+    private SmsApi smsApi;
 
-    @Value("${twilio.auth_token}")
-    private String authToken;
-
-    @Value("${twilio.phone_number}")
-    private String fromNumber;
-
-    @PostConstruct
-    public void init() {
-        System.out.println("Twilio Account SID: " + accountSid);
-        System.out.println("Twilio Auth Token: " + authToken);
-        System.out.println("Twilio Phone Number: " + fromNumber);
-        Twilio.init(accountSid, authToken);}
+    @Value("${infobip.sender.name}")
+    private String senderName;
 
     public void sendSms(String to, String message) {
-        Message.creator(new PhoneNumber(to), new PhoneNumber(fromNumber), message).create();
-        System.out.println("Message sent to " + to);
+        SmsTextualMessage smsMessage = new SmsTextualMessage()
+                .from(senderName)
+                .addDestinationsItem(new SmsDestination().to(to))
+                .text(message);
+
+        SmsAdvancedTextualRequest smsMessageRequest = new SmsAdvancedTextualRequest()
+                .messages(List.of(smsMessage));
+
+        try {
+            SmsResponse smsResponse = smsApi.sendSmsMessage(smsMessageRequest).execute();
+            System.out.println("SMS envoyé avec succès! ID de message : " + smsResponse.getMessages().get(0).getMessageId());
+        } catch (ApiException e) {
+            System.out.println("Erreur lors de l'envoi du SMS : " + e.getMessage());
+        }
     }
 }
-
-
