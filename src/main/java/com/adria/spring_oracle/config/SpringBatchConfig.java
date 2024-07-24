@@ -1,6 +1,5 @@
 package com.adria.spring_oracle.config;
 
-
 import com.adria.spring_oracle.dao.BankTransaction;
 import com.adria.spring_oracle.repository.BankAccountRepository;
 import com.adria.spring_oracle.repository.BankTransactionRepository;
@@ -13,7 +12,6 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -72,12 +70,10 @@ public class SpringBatchConfig {
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
         lineTokenizer.setStrict(false);
-        lineTokenizer.setNames("id", "accountID", "strTransactionDate", "transactionType", "amount", "notificationMethod");
+        lineTokenizer.setNames("transaction_id", "account_number", "transaction_date", "transaction_type", "transaction_amount", "typeChequier", "referenceFacture", "notificationMethod");
         lineMapper.setLineTokenizer(lineTokenizer);
 
-        BeanWrapperFieldSetMapper<BankTransaction> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        fieldSetMapper.setTargetType(BankTransaction.class);
-
+        CustomBankTransactionFieldSetMapper fieldSetMapper = new CustomBankTransactionFieldSetMapper();
         lineMapper.setFieldSetMapper(fieldSetMapper);
         return lineMapper;
     }

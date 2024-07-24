@@ -29,7 +29,9 @@ public class BankTransaction {
     @Transient
     private String strTransactionDate;
 
-    private String transactionType;
-    private double amount;
+    private Transaction_Type transactionType;
+    private Double amount;
+    private String typeChequier;
+    private String referenceFacture;
     private String notificationMethod; // Utiliser un champ plus descriptif
 }
