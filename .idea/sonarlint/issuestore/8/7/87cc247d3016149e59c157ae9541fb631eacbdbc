@@ -1,0 +1,13 @@
+
+u
+java:S11929"YDefine a constant instead of duplicating this literal "Transaction Notification" 4 times.(‘áû-8ð‘ð®Ž2
+~
+java:S1192;"\Define a constant instead of duplicating this literal "Failed to send email to: {}" 4 times.(ßÀ‰Ïûÿÿÿÿ8ð‘ð®Ž2
+|
+java:S1192G"ZDefine a constant instead of duplicating this literal "Failed to send SMS to: {}" 3 times.(Ã¤‡ÿøÿÿÿÿ8ð‘ð®Ž2
+o
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed.(ê‡ŸÑ8´’ð®Ž2
+j
+java:S1871n"HThis case's code block is the same as the block for the case on line 76.(çÓš¨ÿÿÿÿÿ8¹’ð®Ž2
+k
+java:S1128"IRemove this unused import 'com.adria.spring_oracle.dao.Transaction_Type'.(ªÃ´…ÿÿÿÿÿ8Í’ð®Ž2
