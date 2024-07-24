@@ -48,8 +48,8 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
         String text = getTransactionMessage(bankTransaction);
 
         // Envoyer des notifications
-        switch (bankTransaction.getNotificationMethod()) {
-            case "mail":
+        switch (bankTransaction.getTransactionType()) {
+            case V:
                 Optional.ofNullable(bankAccount.getBankClient().getEmail())
                         .filter(email -> email != null && !email.isEmpty())
                         .ifPresent(email -> {
@@ -61,7 +61,7 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                         });
                 break;
 
-            case "sms":
+            case DC:
                 Optional.ofNullable(bankAccount.getBankClient().getPhoneNumber())
                         .filter(phoneNumber -> phoneNumber != null && !phoneNumber.isEmpty())
                         .ifPresent(phoneNumber -> {
@@ -73,7 +73,41 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                         });
                 break;
 
-            case "mail&&sms":
+            case DE:
+                Optional.ofNullable(bankAccount.getBankClient().getEmail())
+                        .filter(email -> email != null && !email.isEmpty())
+                        .ifPresent(email -> {
+                            try {
+                                emailService.sendEmail(email, "Transaction Notification", text);
+                            } catch (Exception e) {
+                                logger.error("Failed to send email to: {}", email, e);
+                            }
+                        });
+
+                Optional.ofNullable(bankAccount.getBankClient().getPhoneNumber())
+                        .filter(phoneNumber -> phoneNumber != null && !phoneNumber.isEmpty())
+                        .ifPresent(phoneNumber -> {
+                            try {
+                                smsService.sendSms(phoneNumber, text);
+                            } catch (Exception e) {
+                                logger.error("Failed to send SMS to: {}", phoneNumber, e);
+                            }
+                        });
+                break;
+
+            case DOC:
+                Optional.ofNullable(bankAccount.getBankClient().getEmail())
+                        .filter(email -> email != null && !email.isEmpty())
+                        .ifPresent(email -> {
+                            try {
+                                emailService.sendEmail(email, "Transaction Notification", text);
+                            } catch (Exception e) {
+                                logger.error("Failed to send email to: {}", email, e);
+                            }
+                        });
+                break;
+
+            case PF:
                 Optional.ofNullable(bankAccount.getBankClient().getEmail())
                         .filter(email -> email != null && !email.isEmpty())
                         .ifPresent(email -> {
@@ -96,7 +130,7 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                 break;
 
             default:
-                logger.warn("Unexpected notification method: {}", bankTransaction.getNotificationMethod());
+                logger.warn("Unexpected transaction type: {}", bankTransaction.getTransactionType());
                 break;
         }
 
@@ -110,15 +144,15 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
         String chequeType = bankTransaction.getTypeChequier() != null ? bankTransaction.getTypeChequier() : "type de chéquier inconnu";
 
         switch (bankTransaction.getTransactionType()) {
-            case Virement:
+            case V:
                 return "Votre virement de " + amount + " a été traité.";
-            case DEMANDE_CHEQUIER:
+            case DC:
                 return "Votre demande de chéquier de type " + chequeType + " a été traitée.";
-            case DEMANDE_CREDIT:
+            case DE:
                 return "Votre demande de crédit de " + amount + " a été approuvée.";
-            case DEMANDE_OPPOSITION_CHEQUE:
+            case DOC:
                 return "Votre demande d'opposition sur chèque de " + amount + " a été prise en compte.";
-            case PAIEMENT_FACTURE:
+            case PF:
                 return "Votre paiement de facture de " + amount + " avec la référence " + reference + " a été effectué.";
             default:
                 return "Votre transaction a été traitée.";

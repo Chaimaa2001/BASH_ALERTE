@@ -23,7 +23,10 @@ public class CustomBankTransactionFieldSetMapper extends BeanWrapperFieldSetMapp
             bankTransaction.setId(fieldSet.readLong("transaction_id"));
             bankTransaction.setAccountID(fieldSet.readLong("account_number"));
             bankTransaction.setStrTransactionDate(fieldSet.readString("transaction_date"));
-            bankTransaction.setTransactionType(Transaction_Type.valueOf(fieldSet.readString("transaction_type")));
+
+            // Utilisation du code de transaction pour déterminer Transaction_Type
+            Transaction_Type transactionType = Transaction_Type.fromCode(fieldSet.readString("transaction_type"));
+            bankTransaction.setTransactionType(transactionType);
 
             String amountStr = fieldSet.readString("transaction_amount");
             if (amountStr != null && !amountStr.isEmpty()) {
