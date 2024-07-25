@@ -2,7 +2,6 @@ package com.adria.spring_oracle.config;
 
 import com.adria.spring_oracle.dao.BankAccount;
 import com.adria.spring_oracle.dao.BankTransaction;
-import com.adria.spring_oracle.dao.Transaction_Type;
 import com.adria.spring_oracle.repository.BankAccountRepository;
 import com.adria.spring_oracle.service.EmailService;
 import com.adria.spring_oracle.service.SmsService;
@@ -44,118 +43,58 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
         BankAccount bankAccount = optionalBankAccount.get();
         bankTransaction.setBankAccount(bankAccount);
 
-        // Obtenez le message en fonction du type de transaction et des champs disponibles
-        String text = getTransactionMessage(bankTransaction);
+        // Obtenez le type de notification
+        String notificationMethod = bankTransaction.getNotificationMethod();
+    // Récupérer le message depuis le service SMS
 
-        // Envoyer des notifications
-        switch (bankTransaction.getTransactionType()) {
-            case V:
+        // Envoyer des notifications selon le type de notification
+        if (notificationMethod != null) {
+            if (notificationMethod.equals("mail")) {
                 Optional.ofNullable(bankAccount.getBankClient().getEmail())
                         .filter(email -> email != null && !email.isEmpty())
                         .ifPresent(email -> {
                             try {
-                                emailService.sendEmail(email, "Transaction Notification", text);
+                                emailService.sendTransactionEmail(bankTransaction);
                             } catch (Exception e) {
                                 logger.error("Failed to send email to: {}", email, e);
                             }
                         });
-                break;
-
-            case DC:
+            } else if (notificationMethod.equals("sms")) {
                 Optional.ofNullable(bankAccount.getBankClient().getPhoneNumber())
                         .filter(phoneNumber -> phoneNumber != null && !phoneNumber.isEmpty())
                         .ifPresent(phoneNumber -> {
                             try {
-                                smsService.sendSms(phoneNumber, text);
+                                smsService.sendTransactionSms(bankTransaction);
                             } catch (Exception e) {
                                 logger.error("Failed to send SMS to: {}", phoneNumber, e);
                             }
                         });
-                break;
-
-            case DE:
+            } else if (notificationMethod.equals("mail&&sms")) {
                 Optional.ofNullable(bankAccount.getBankClient().getEmail())
                         .filter(email -> email != null && !email.isEmpty())
                         .ifPresent(email -> {
                             try {
-                                emailService.sendEmail(email, "Transaction Notification", text);
+                                emailService.sendTransactionEmail(bankTransaction);
                             } catch (Exception e) {
                                 logger.error("Failed to send email to: {}", email, e);
                             }
                         });
-
                 Optional.ofNullable(bankAccount.getBankClient().getPhoneNumber())
                         .filter(phoneNumber -> phoneNumber != null && !phoneNumber.isEmpty())
                         .ifPresent(phoneNumber -> {
                             try {
-                                smsService.sendSms(phoneNumber, text);
+                                smsService.sendTransactionSms(bankTransaction);
                             } catch (Exception e) {
                                 logger.error("Failed to send SMS to: {}", phoneNumber, e);
                             }
                         });
-                break;
-
-            case DOC:
-                Optional.ofNullable(bankAccount.getBankClient().getEmail())
-                        .filter(email -> email != null && !email.isEmpty())
-                        .ifPresent(email -> {
-                            try {
-                                emailService.sendEmail(email, "Transaction Notification", text);
-                            } catch (Exception e) {
-                                logger.error("Failed to send email to: {}", email, e);
-                            }
-                        });
-                break;
-
-            case PF:
-                Optional.ofNullable(bankAccount.getBankClient().getEmail())
-                        .filter(email -> email != null && !email.isEmpty())
-                        .ifPresent(email -> {
-                            try {
-                                emailService.sendEmail(email, "Transaction Notification", text);
-                            } catch (Exception e) {
-                                logger.error("Failed to send email to: {}", email, e);
-                            }
-                        });
-
-                Optional.ofNullable(bankAccount.getBankClient().getPhoneNumber())
-                        .filter(phoneNumber -> phoneNumber != null && !phoneNumber.isEmpty())
-                        .ifPresent(phoneNumber -> {
-                            try {
-                                smsService.sendSms(phoneNumber, text);
-                            } catch (Exception e) {
-                                logger.error("Failed to send SMS to: {}", phoneNumber, e);
-                            }
-                        });
-                break;
-
-            default:
-                logger.warn("Unexpected transaction type: {}", bankTransaction.getTransactionType());
-                break;
+            } else {
+                logger.warn("Unknown notification method specified for transaction: {}", bankTransaction);
+            }
+        } else {
+            logger.warn("No notification method specified for transaction: {}", bankTransaction);
         }
 
         return bankTransaction;
-    }
-
-    // Méthode pour obtenir le message en fonction du type de transaction et des champs disponibles
-    private String getTransactionMessage(BankTransaction bankTransaction) {
-        String amount = bankTransaction.getAmount() != null ? bankTransaction.getAmount().toString() : "montant inconnu";
-        String reference = bankTransaction.getReferenceFacture() != null ? bankTransaction.getReferenceFacture() : "référence inconnue";
-        String chequeType = bankTransaction.getTypeChequier() != null ? bankTransaction.getTypeChequier() : "type de chéquier inconnu";
-
-        switch (bankTransaction.getTransactionType()) {
-            case V:
-                return "Votre virement de " + amount + " a été traité.";
-            case DC:
-                return "Votre demande de chéquier de type " + chequeType + " a été traitée.";
-            case DE:
-                return "Votre demande de crédit de " + amount + " a été approuvée.";
-            case DOC:
-                return "Votre demande d'opposition sur chèque de " + amount + " a été prise en compte.";
-            case PF:
-                return "Votre paiement de facture de " + amount + " avec la référence " + reference + " a été effectué.";
-            default:
-                return "Votre transaction a été traitée.";
-        }
     }
 }
