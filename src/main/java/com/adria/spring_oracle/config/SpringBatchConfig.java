@@ -1,8 +1,8 @@
 package com.adria.spring_oracle.config;
 
 import com.adria.spring_oracle.dao.BankTransaction;
-import com.adria.spring_oracle.repository.BankAccountRepository;
 import com.adria.spring_oracle.repository.BankTransactionRepository;
+import com.adria.spring_oracle.repository.BankClientRepository; // Ajoutez ce dépôt
 import com.adria.spring_oracle.service.EmailService;
 import com.adria.spring_oracle.service.SmsService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,15 +21,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableBatchProcessing
+@Transactional
 public class SpringBatchConfig {
+
     private final JobRepository jobRepository;
     private final BankTransactionRepository repository;
+    private final BankClientRepository bankClientRepository; // Ajoutez ce dépôt
     private final PlatformTransactionManager platformTransactionManager;
-    private final BankAccountRepository bankAccountRepository;
     private final EmailService emailService;
     private final SmsService smsService;
 
@@ -42,7 +44,7 @@ public class SpringBatchConfig {
         return new StepBuilder("csvImport", jobRepository)
                 .<BankTransaction, BankTransaction>chunk(10, platformTransactionManager)
                 .reader(fileItemReader())
-                .processor(new BankTransactionProcessor(bankAccountRepository, emailService, smsService))
+                .processor(new BankTransactionProcessor(emailService, smsService, bankClientRepository)) // Passer le dépôt du client ici
                 .writer(new BankTransactionItemWriter(repository))
                 .build();
     }
@@ -70,7 +72,7 @@ public class SpringBatchConfig {
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
         lineTokenizer.setStrict(false);
-        lineTokenizer.setNames("transaction_id", "account_number", "transaction_date", "transaction_type", "transaction_amount", "typeChequier", "referenceFacture", "notificationMethod");
+        lineTokenizer.setNames("transaction_id", "bank_client", "transaction_date", "transaction_type", "transaction_amount", "typeChequier", "referenceFacture", "notificationMethod");
         lineMapper.setLineTokenizer(lineTokenizer);
 
         CustomBankTransactionFieldSetMapper fieldSetMapper = new CustomBankTransactionFieldSetMapper();

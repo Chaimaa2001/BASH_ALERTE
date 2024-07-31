@@ -13,11 +13,16 @@ public class ParamEmail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
-    private BankAccount bankAccount;
+    @Column(name = "BANK_CODE")
+    @Enumerated(value = EnumType.STRING)
+    private BankCode bankCode;
     private String destinataire;
     private String emetteur;
     private String object;
     private String corps;
+    @Column(name = "TRANSACTION_TYPE")
+    @Enumerated(value = EnumType.STRING)
     private Transaction_Type transactionType;
+
+
 }

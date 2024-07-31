@@ -18,18 +18,20 @@ public class BankTransaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "accountID", referencedColumnName = "accountID")
-    private BankAccount bankAccount;
+    @JoinColumn(name = "bankClientID", referencedColumnName = "bankClientID")  // Spécifie la colonne qui fait référence à BankClient
+    private BankClient bankClient;
 
     @Transient
-    private Long accountID;
+    private Long bankClientID;
 
     private Date transactionDate;
 
     @Transient
     private String strTransactionDate;
 
+    @Enumerated(value = EnumType.STRING)
     private Transaction_Type transactionType;
+
     private Double amount;
     private String typeChequier;
     private String referenceFacture;
