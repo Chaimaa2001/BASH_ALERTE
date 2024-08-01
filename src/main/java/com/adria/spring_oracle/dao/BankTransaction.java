@@ -18,7 +18,7 @@ public class BankTransaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "bankClientID", referencedColumnName = "bankClientID")  // Spécifie la colonne qui fait référence à BankClient
+    @JoinColumn(name = "userID", referencedColumnName = "userID")  // Spécifie la colonne qui fait référence à BankClient
     private BankClient bankClient;
 
     @Transient

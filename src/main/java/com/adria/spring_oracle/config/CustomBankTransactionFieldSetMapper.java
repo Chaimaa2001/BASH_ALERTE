@@ -22,7 +22,7 @@ public class CustomBankTransactionFieldSetMapper extends BeanWrapperFieldSetMapp
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
 
     @Autowired
-    private BankClientRepository bankClientRepository; // Correction ici pour utiliser BankClientRepository
+    private BankClientRepository bankClientRepository;
 
     public CustomBankTransactionFieldSetMapper() {
         setTargetType(BankTransaction.class);
@@ -33,29 +33,8 @@ public class CustomBankTransactionFieldSetMapper extends BeanWrapperFieldSetMapp
         BankTransaction bankTransaction = new BankTransaction();
         try {
             bankTransaction.setId(fieldSet.readLong("transaction_id"));
-
-            // Récupérer le BankClient en fonction de l'ID
-            bankTransaction.setBankClientID( fieldSet.readLong("bank_client"));
-
+            bankTransaction.setBankClientID(fieldSet.readLong("userID"));  // Utiliser userID pour récupérer le client
             bankTransaction.setStrTransactionDate(fieldSet.readString("transaction_date"));
-
-            // Utilisation du code de transaction pour déterminer Transaction_Type
-            Transaction_Type transactionType = Transaction_Type.fromCode(fieldSet.readString("transaction_type"));
-            bankTransaction.setTransactionType(transactionType);
-
-            String amountStr = fieldSet.readString("transaction_amount");
-            if (amountStr != null && !amountStr.isEmpty()) {
-                bankTransaction.setAmount(Double.parseDouble(amountStr));
-            } else {
-                bankTransaction.setAmount(null); // ou une valeur par défaut si nécessaire
-            }
-
-            // Lire typeChequier en tant que String
-            String typeChequierStr = fieldSet.readString("typeChequier");
-            bankTransaction.setTypeChequier(typeChequierStr != null && !typeChequierStr.isEmpty() ? typeChequierStr : null);
-
-            bankTransaction.setReferenceFacture(fieldSet.readString("referenceFacture"));
-            bankTransaction.setNotificationMethod(fieldSet.readString("notificationMethod"));
 
             // Convertir strTransactionDate en Date
             Date transactionDate;
@@ -64,9 +43,22 @@ public class CustomBankTransactionFieldSetMapper extends BeanWrapperFieldSetMapp
                 bankTransaction.setTransactionDate(transactionDate);
             } catch (ParseException e) {
                 e.printStackTrace();
-                // Vous pouvez également gérer cette exception en la journalisant ou en lançant une exception personnalisée
                 bankTransaction.setTransactionDate(null); // ou une valeur par défaut
             }
+
+            Transaction_Type transactionType = Transaction_Type.fromCode(fieldSet.readString("transaction_type"));
+            bankTransaction.setTransactionType(transactionType);
+
+            String amountStr = fieldSet.readString("transaction_amount");
+            if (amountStr != null && !amountStr.isEmpty()) {
+                bankTransaction.setAmount(Double.parseDouble(amountStr));
+            } else {
+                bankTransaction.setAmount(null); // ou une valeur par défaut
+            }
+
+            bankTransaction.setTypeChequier(fieldSet.readString("typeChequier"));
+            bankTransaction.setReferenceFacture(fieldSet.readString("referenceFacture"));
+            bankTransaction.setNotificationMethod(fieldSet.readString("notificationMethod"));
 
         } catch (Exception e) {
             e.printStackTrace();

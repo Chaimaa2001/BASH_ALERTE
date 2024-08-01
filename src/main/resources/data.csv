@@ -1,9 +1,9 @@
-transaction_id,bank_client,transaction_date,transaction_type,transaction_amount,typeChequier,referenceFacture,notificationMethod
-540100,1,17/10/2018-9:44,V,10000.570,,,mail
+transaction_id,userID,transaction_date,transaction_type,transaction_amount,typeChequier,referenceFacture,notificationMethod
+540109,1,17/10/2018-9:44,V,10000.570,,,mail
 550100,2,18/10/2018-13:15,DC,,25,,mail&&sms
-640333,3,18/11/2018-14:12,DE,3400.12,,,sms
-540101,4,17/10/2018-9:44,DOC,10000.570,,,mail
-550105,5,18/10/2018-13:15,PF,500.120,,AD123456,mail&&sms
+640334,3,18/11/2018-14:12,DE,3400.12,,,sms
+540107,4,17/10/2018-9:44,DOC,10000.570,,,mail
+550106,5,18/10/2018-13:15,PF,500.120,,AD123456,mail&&sms
 540100,6,17/10/2018-9:44,V,10000.570,,,mail&&sms
 550100,7,18/10/2018-13:15,DC,,25,,mail
 640333,8,18/11/2018-14:12,DE,3400.12,,,sms

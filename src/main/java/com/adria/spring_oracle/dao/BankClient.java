@@ -10,26 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "bank_client", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "phoneNumber")
-})
+@DiscriminatorValue("BANK_CLIENT")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class BankClient {
-    @Id
-    @Column(name = "bankClientID")
-    private Long user_ID;
+public class BankClient extends Utilisateur {
 
-    private String nom;
-    private String prenom;
-    private String date_Naissance;
+    @Column(name = "email", unique = true)
     private String email;
+
+    @Column(name = "phoneNumber", unique = true)
     private String phoneNumber;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "bankCode")
     private BankCode bankCode;
 
     @OneToMany(mappedBy = "bankClient", cascade = CascadeType.ALL, orphanRemoval = true)

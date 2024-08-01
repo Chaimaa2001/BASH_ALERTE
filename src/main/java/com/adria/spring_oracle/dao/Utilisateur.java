@@ -1,11 +1,31 @@
 package com.adria.spring_oracle.dao;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@Entity
+@Table(name = "utilisateur")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "CLIENT_TYPE")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public abstract class Utilisateur {
-    @Column(name = "bankClientID")
-    private Long user_ID;
+
+    @Id
+    @Column(name = "userID")
+    private Long userID;
+
+    @Column(name = "userFirstName")
     private String nom;
+
+    @Column(name = "userLastName")
     private String prenom;
-    private String date_Naissance;
+
+    @Column(name = "dateNaissance")
+    private String dateNaissance;
 }

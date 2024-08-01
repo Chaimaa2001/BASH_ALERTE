@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -75,8 +76,9 @@ public class EmailService {
             helper.setText(body, true);  // 'true' indique du contenu HTML
             helper.setFrom(from);
 
-            // Ajouter une image en tant que ressource embarquée
-            File imageFile = new File("src/main/resources/static/img.png");
+            // Choisir l'image en fonction du BankCode
+            String imageFilePath = getImageFilePath(bankCode);
+            File imageFile = new File(imageFilePath);
             if (imageFile.exists()) {
                 helper.addInline("image", imageFile);
             } else {
@@ -86,6 +88,21 @@ public class EmailService {
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
+        }
+    }
+
+    private String getImageFilePath(BankCode bankCode) {
+        switch (bankCode) {
+            case TIJJARI:
+                return "src/main/resources/static/attijari.png";
+            case BMCE:
+                return "src/main/resources/static/bmce.png";
+            case CIH:
+                return "src/main/resources/static/cih.png";
+            case CREDIT_DU_MAROC:
+                return "src/main/resources/static/cdm.png";
+            default:
+                throw new IllegalArgumentException("Unknown BankCode: " + bankCode);
         }
     }
 }

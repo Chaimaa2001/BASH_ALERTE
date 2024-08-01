@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.adria.spring_oracle.config.CustomBankTransactionFieldSetMapper;
 @Configuration
 @RequiredArgsConstructor
 @EnableBatchProcessing
@@ -72,11 +72,12 @@ public class SpringBatchConfig {
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
         lineTokenizer.setStrict(false);
-        lineTokenizer.setNames("transaction_id", "bank_client", "transaction_date", "transaction_type", "transaction_amount", "typeChequier", "referenceFacture", "notificationMethod");
+        lineTokenizer.setNames("transaction_id", "userID", "transaction_date", "transaction_type", "transaction_amount", "typeChequier", "referenceFacture", "notificationMethod");
         lineMapper.setLineTokenizer(lineTokenizer);
 
         CustomBankTransactionFieldSetMapper fieldSetMapper = new CustomBankTransactionFieldSetMapper();
         lineMapper.setFieldSetMapper(fieldSetMapper);
         return lineMapper;
     }
+
 }
