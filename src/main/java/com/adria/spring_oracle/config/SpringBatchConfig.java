@@ -1,6 +1,6 @@
 package com.adria.spring_oracle.config;
 
-import com.adria.spring_oracle.dao.BankTransaction;
+import com.adria.spring_oracle.entities.BankTransaction;
 import com.adria.spring_oracle.repository.BankTransactionRepository;
 import com.adria.spring_oracle.repository.BankClientRepository; // Ajoutez ce dépôt
 import com.adria.spring_oracle.service.EmailService;
@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-import com.adria.spring_oracle.config.CustomBankTransactionFieldSetMapper;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableBatchProcessing

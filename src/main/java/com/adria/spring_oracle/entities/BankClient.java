@@ -1,5 +1,6 @@
-package com.adria.spring_oracle.dao;
+package com.adria.spring_oracle.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +29,6 @@ public class BankClient extends Utilisateur {
     private BankCode bankCode;
 
     @OneToMany(mappedBy = "bankClient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<BankTransaction> bankTransactions = new ArrayList<>();
 }

@@ -1,4 +1,4 @@
-package com.adria.spring_oracle.dao;
+package com.adria.spring_oracle.entities;
 
 public enum BankCode {
     TIJJARI,

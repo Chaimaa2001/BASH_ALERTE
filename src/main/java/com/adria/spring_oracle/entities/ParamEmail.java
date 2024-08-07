@@ -1,4 +1,4 @@
-package com.adria.spring_oracle.dao;
+package com.adria.spring_oracle.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,10 +8,8 @@ import lombok.ToString;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-public class ParamSMS {
+@AllArgsConstructor @NoArgsConstructor @ToString
+public class ParamEmail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,8 +17,12 @@ public class ParamSMS {
     @Enumerated(value = EnumType.STRING)
     private BankCode bankCode;
     private String destinataire;
-    private String message;
+    private String emetteur;
+    private String object;
+    private String corps;
     @Column(name = "TRANSACTION_TYPE")
     @Enumerated(value = EnumType.STRING)
     private Transaction_Type transactionType;
+
+
 }

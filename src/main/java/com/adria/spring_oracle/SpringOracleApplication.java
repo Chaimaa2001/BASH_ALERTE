@@ -1,17 +1,13 @@
 package com.adria.spring_oracle;
 
 
-import com.adria.spring_oracle.dao.BankClient;
-import com.adria.spring_oracle.dao.BankCode;
 import com.adria.spring_oracle.repository.BankClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 @Component
 @SpringBootApplication
 @Transactional

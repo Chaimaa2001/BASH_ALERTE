@@ -1,7 +1,7 @@
 package com.adria.spring_oracle.config;
 
-import com.adria.spring_oracle.dao.BankTransaction;
-import com.adria.spring_oracle.dao.BankClient;
+import com.adria.spring_oracle.entities.BankTransaction;
+import com.adria.spring_oracle.entities.BankClient;
 import com.adria.spring_oracle.repository.BankClientRepository;
 import com.adria.spring_oracle.service.EmailService;
 import com.adria.spring_oracle.service.SmsService;

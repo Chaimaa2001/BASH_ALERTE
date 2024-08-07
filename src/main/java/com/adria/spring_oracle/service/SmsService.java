@@ -1,9 +1,9 @@
 package com.adria.spring_oracle.service;
 
-import com.adria.spring_oracle.dao.BankTransaction;
-import com.adria.spring_oracle.dao.ParamSMS;
-import com.adria.spring_oracle.dao.BankCode;
-import com.adria.spring_oracle.dao.Transaction_Type;
+import com.adria.spring_oracle.entities.BankTransaction;
+import com.adria.spring_oracle.entities.ParamSMS;
+import com.adria.spring_oracle.entities.BankCode;
+import com.adria.spring_oracle.entities.Transaction_Type;
 import com.adria.spring_oracle.repository.ParamSMSRepository;
 import com.infobip.ApiException;
 import com.infobip.api.SmsApi;

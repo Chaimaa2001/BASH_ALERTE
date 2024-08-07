@@ -1,8 +1,7 @@
 package com.adria.spring_oracle.config;
 
-import com.adria.spring_oracle.dao.BankClient;
-import com.adria.spring_oracle.dao.BankTransaction;
-import com.adria.spring_oracle.dao.Transaction_Type;
+import com.adria.spring_oracle.entities.BankTransaction;
+import com.adria.spring_oracle.entities.Transaction_Type;
 import com.adria.spring_oracle.repository.BankClientRepository;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 @Component
 @Transactional

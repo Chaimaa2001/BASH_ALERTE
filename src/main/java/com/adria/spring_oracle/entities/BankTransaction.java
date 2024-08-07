@@ -1,5 +1,6 @@
-package com.adria.spring_oracle.dao;
+package com.adria.spring_oracle.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class BankTransaction {
 
     @ManyToOne
     @JoinColumn(name = "userID", referencedColumnName = "userID")  // Spécifie la colonne qui fait référence à BankClient
+    @JsonIgnore
     private BankClient bankClient;
 
     @Transient

@@ -1,9 +1,9 @@
 package com.adria.spring_oracle.service;
 
-import com.adria.spring_oracle.dao.BankTransaction;
-import com.adria.spring_oracle.dao.ParamEmail;
-import com.adria.spring_oracle.dao.BankCode;
-import com.adria.spring_oracle.dao.Transaction_Type;
+import com.adria.spring_oracle.entities.BankTransaction;
+import com.adria.spring_oracle.entities.ParamEmail;
+import com.adria.spring_oracle.entities.BankCode;
+import com.adria.spring_oracle.entities.Transaction_Type;
 import com.adria.spring_oracle.repository.ParamEmailRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @Service
