@@ -1,39 +1,48 @@
 package com.adria.spring_oracle;
 
 
+import com.adria.spring_oracle.entities.BackOffice;
+import com.adria.spring_oracle.keycloak.KeycloakUserImporter;
+import com.adria.spring_oracle.keycloak.OracleUserImporter;
 import com.adria.spring_oracle.repository.BankClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Component
 @SpringBootApplication
 @Transactional
 
-public class SpringOracleApplication /*implements CommandLineRunner*/ {
-
+public class SpringOracleApplication implements CommandLineRunner {
 
 
     @Autowired
     private BankClientRepository bankClientRepository;
 
+    @Autowired
+    private KeycloakUserImporter keycloakUserImporter;
+
+    @Autowired
+    private OracleUserImporter oracleUserImporter;
+
+
     public static void main(String[] args) {
         SpringApplication.run(SpringOracleApplication.class, args);
     }
 
-    /*@Override
+    @Override
     public void run(String... args) throws Exception {
-        // Création des clients
-        BankClient client1 = new BankClient(123L, "Kaine", "Chaimaa", "23-11-2001", "chaimaakaine20@gmail.com", "+2120649536980", BankCode.TIJJARI,null);
-        BankClient client2 = new BankClient(456L, "Kaine", "Khadija", "23-11-2001", "chaimaakaine201@gmail.com", "+2120766802128", BankCode.BMCE,null);
+        // Lire les utilisateurs depuis la base de données
+        List<BackOffice> users = oracleUserImporter.getUsers();
 
-        // Sauvegarde des clients
-        bankClientRepository.save(client1);
-        bankClientRepository.save(client2);
+        // Importer les utilisateurs dans Keycloak
+        keycloakUserImporter.importUsers(users);
 
-
-
-    }*/
+        System.out.println("Utilisateurs importés avec succès dans Keycloak !");
+    }
 }

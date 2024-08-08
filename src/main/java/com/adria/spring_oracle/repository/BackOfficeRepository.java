@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BackOfficeRepository extends JpaRepository<BackOffice, Long> {
+    BackOffice findByUsername(String username);
 }
