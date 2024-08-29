@@ -2,7 +2,9 @@ package com.adria.spring_oracle.config;
 
 import com.adria.spring_oracle.entities.BankTransaction;
 import com.adria.spring_oracle.entities.BankClient;
+import com.adria.spring_oracle.entities.TransactionStatistics;
 import com.adria.spring_oracle.repository.BankClientRepository;
+import com.adria.spring_oracle.repository.TransactionStatisticsRepository;
 import com.adria.spring_oracle.service.EmailService;
 import com.adria.spring_oracle.service.SmsService;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class BankTransactionProcessor implements ItemProcessor<BankTransaction, BankTransaction> {
 
     private static final Logger logger = LoggerFactory.getLogger(BankTransactionProcessor.class);
@@ -25,77 +29,96 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
     private final EmailService emailService;
     private final SmsService smsService;
     private final BankClientRepository bankClientRepository;
+    private final TransactionStatisticsRepository statisticsRepository;
 
     @Override
-    @Transactional
     public BankTransaction process(BankTransaction bankTransaction) throws Exception {
+        TransactionStatistics statistics = new TransactionStatistics();
+        statistics.setProcessingDate(LocalDateTime.now());
+        statistics.setBankTransaction(bankTransaction);
+
         try {
             bankTransaction.setTransactionDate(dateFormat.parse(bankTransaction.getStrTransactionDate()));
         } catch (ParseException e) {
-            logger.error("Date parsing error for transaction: {}", bankTransaction, e);
-            return null; // Ignore this transaction in case of date parsing error
+            logger.error("Erreur de parsing de la date pour la transaction: {}", bankTransaction, e);
+            statistics.setSkippedTransactions(statistics.getSkippedTransactions() + 1);
+            statisticsRepository.save(statistics);
+            return null; // Ignorer cette transaction en cas d'erreur de parsing de la date
         }
 
-        // Fetch the client associated with the transaction
+        // Récupérer le client associé à la transaction
         Optional<BankClient> optionalBankClient = bankClientRepository.findById(bankTransaction.getBankClientID());
         if (optionalBankClient.isEmpty()) {
-            logger.warn("Bank client not found for transaction: {}", bankTransaction);
-            return null; // Ignore this transaction if the client is not found
+            logger.warn("Client bancaire non trouvé pour la transaction: {}", bankTransaction);
+            statistics.setSkippedTransactions(statistics.getSkippedTransactions() + 1);
+            statisticsRepository.save(statistics);
+            return null; // Ignorer cette transaction si le client n'est pas trouvé
         }
 
         BankClient bankClient = optionalBankClient.get();
         bankTransaction.setBankClient(bankClient);
 
-        // Send notifications based on the notification method
+        // Envoyer les notifications selon la méthode spécifiée
         String notificationMethod = bankTransaction.getNotificationMethod();
+        statistics.setTotalTransactions(statistics.getTotalTransactions() + 1);
 
         if (notificationMethod != null) {
             if (notificationMethod.equals("mail")) {
                 Optional.ofNullable(bankClient.getEmail())
                         .filter(email -> !email.isEmpty())
-                        .ifPresent(email -> {
+                        .ifPresentOrElse(email -> {
                             try {
                                 emailService.sendTransactionEmail(bankTransaction);
+                                statistics.setSuccessfulEmails(statistics.getSuccessfulEmails() + 1);
                             } catch (Exception e) {
-                                logger.error("Failed to send email to: {}", email, e);
+                                logger.error("Échec de l'envoi de l'email à: {}", email, e);
+                                statistics.setFailedEmails(statistics.getFailedEmails() + 1);
                             }
-                        });
+                        }, () -> statistics.setFailedEmails(statistics.getFailedEmails() + 1));
             } else if (notificationMethod.equals("sms")) {
                 Optional.ofNullable(bankClient.getPhoneNumber())
                         .filter(phoneNumber -> !phoneNumber.isEmpty())
-                        .ifPresent(phoneNumber -> {
+                        .ifPresentOrElse(phoneNumber -> {
                             try {
                                 smsService.sendTransactionSms(bankTransaction);
+                                statistics.setSuccessfulSms(statistics.getSuccessfulSms() + 1);
                             } catch (Exception e) {
-                                logger.error("Failed to send SMS to: {}", phoneNumber, e);
+                                logger.error("Échec de l'envoi du SMS à: {}", phoneNumber, e);
+                                statistics.setFailedSms(statistics.getFailedSms() + 1);
                             }
-                        });
+                        }, () -> statistics.setFailedSms(statistics.getFailedSms() + 1));
             } else if (notificationMethod.equals("mail&&sms")) {
+                // Gérer l'envoi de l'email et du SMS avec les statistiques appropriées
                 Optional.ofNullable(bankClient.getEmail())
                         .filter(email -> !email.isEmpty())
-                        .ifPresent(email -> {
+                        .ifPresentOrElse(email -> {
                             try {
                                 emailService.sendTransactionEmail(bankTransaction);
+                                statistics.setSuccessfulEmails(statistics.getSuccessfulEmails() + 1);
                             } catch (Exception e) {
-                                logger.error("Failed to send email to: {}", email, e);
+                                logger.error("Échec de l'envoi de l'email à: {}", email, e);
+                                statistics.setFailedEmails(statistics.getFailedEmails() + 1);
                             }
-                        });
+                        }, () -> statistics.setFailedEmails(statistics.getFailedEmails() + 1));
                 Optional.ofNullable(bankClient.getPhoneNumber())
                         .filter(phoneNumber -> !phoneNumber.isEmpty())
-                        .ifPresent(phoneNumber -> {
+                        .ifPresentOrElse(phoneNumber -> {
                             try {
                                 smsService.sendTransactionSms(bankTransaction);
+                                statistics.setSuccessfulSms(statistics.getSuccessfulSms() + 1);
                             } catch (Exception e) {
-                                logger.error("Failed to send SMS to: {}", phoneNumber, e);
+                                logger.error("Échec de l'envoi du SMS à: {}", phoneNumber, e);
+                                statistics.setFailedSms(statistics.getFailedSms() + 1);
                             }
-                        });
+                        }, () -> statistics.setFailedSms(statistics.getFailedSms() + 1));
             } else {
-                logger.warn("Unknown notification method specified for transaction: {}", bankTransaction);
+                logger.warn("Méthode de notification inconnue spécifiée pour la transaction: {}", bankTransaction);
             }
         } else {
-            logger.warn("No notification method specified for transaction: {}", bankTransaction);
+            logger.warn("Aucune méthode de notification spécifiée pour la transaction: {}", bankTransaction);
         }
 
+        statisticsRepository.save(statistics);
         return bankTransaction;
     }
 }

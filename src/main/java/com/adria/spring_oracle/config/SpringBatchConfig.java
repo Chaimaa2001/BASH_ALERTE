@@ -2,7 +2,8 @@ package com.adria.spring_oracle.config;
 
 import com.adria.spring_oracle.entities.BankTransaction;
 import com.adria.spring_oracle.repository.BankTransactionRepository;
-import com.adria.spring_oracle.repository.BankClientRepository; // Ajoutez ce dépôt
+import com.adria.spring_oracle.repository.BankClientRepository;
+import com.adria.spring_oracle.repository.TransactionStatisticsRepository;
 import com.adria.spring_oracle.service.EmailService;
 import com.adria.spring_oracle.service.SmsService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class SpringBatchConfig {
 
     private final JobRepository jobRepository;
     private final BankTransactionRepository repository;
-    private final BankClientRepository bankClientRepository; // Ajoutez ce dépôt
+    private final BankClientRepository bankClientRepository;
+    private final TransactionStatisticsRepository statisticsRepository; // Ajout du dépôt pour les statistiques
     private final PlatformTransactionManager platformTransactionManager;
     private final EmailService emailService;
     private final SmsService smsService;
@@ -44,7 +46,7 @@ public class SpringBatchConfig {
         return new StepBuilder("csvImport", jobRepository)
                 .<BankTransaction, BankTransaction>chunk(10, platformTransactionManager)
                 .reader(fileItemReader())
-                .processor(new BankTransactionProcessor(emailService, smsService, bankClientRepository)) // Passer le dépôt du client ici
+                .processor(new BankTransactionProcessor(emailService, smsService, bankClientRepository, statisticsRepository)) // Passer les dépôts et services requis ici
                 .writer(new BankTransactionItemWriter(repository))
                 .build();
     }

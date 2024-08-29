@@ -5,6 +5,7 @@ import com.adria.spring_oracle.repository.BankClientRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,5 +16,8 @@ public class BankClientService {
 
     public Optional<BankClient> findById(Long id) {
         return bankClientRepository.findById(id);
+    }
+    public List<BankClient> findByAll() {
+        return bankClientRepository.findAll();
     }
 }

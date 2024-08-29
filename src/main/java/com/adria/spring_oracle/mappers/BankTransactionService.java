@@ -1,6 +1,7 @@
 package com.adria.spring_oracle.mappers;
 
 import com.adria.spring_oracle.dto.BankTransactionDTO;
+import com.adria.spring_oracle.entities.BankCode;
 import com.adria.spring_oracle.entities.BankTransaction;
 import com.adria.spring_oracle.entities.Transaction_Type;
 import com.adria.spring_oracle.repository.BankTransactionRepository;
@@ -20,6 +21,13 @@ public class BankTransactionService {
 
     public List<BankTransactionDTO> findAll() {
         return bankTransactionRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<BankTransactionDTO> findByBankCode(BankCode bankCode) {
+        // Trouver les transactions par BankCode
+        return bankTransactionRepository.findByBankClient_BankCode(bankCode).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -48,5 +56,8 @@ public class BankTransactionService {
         dto.setNotificationMethod(transaction.getNotificationMethod());
         dto.setBankClientID(transaction.getBankClient().getUserID());
         return dto;
+    }
+    public List<String> findDistinctTransactionTypes() {
+        return bankTransactionRepository.findDistinctTransactionTypes();
     }
 }

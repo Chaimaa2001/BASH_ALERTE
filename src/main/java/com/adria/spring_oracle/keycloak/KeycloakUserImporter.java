@@ -19,7 +19,7 @@ public class KeycloakUserImporter {
     private static final String REALM = "batch-alerte";
     private static final String CLIENT_ID = "Batch-BackOffice";
     private static final String ADMIN_USERNAME = "test";
-    private static final String ADMIN_PASSWORD = "test1";
+    private static final String ADMIN_PASSWORD = "test";
 
     private Keycloak keycloak;
 

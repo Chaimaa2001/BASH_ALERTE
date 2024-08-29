@@ -24,9 +24,6 @@ public class BankClient extends Utilisateur {
     @Column(name = "phoneNumber", unique = true)
     private String phoneNumber;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "bankCode")
-    private BankCode bankCode;
 
     @OneToMany(mappedBy = "bankClient", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

@@ -46,10 +46,10 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-    @Bean
+   /* @Bean
     public JwtDecoder jwtDecoder() {
         // Assurez-vous que cette URL est correcte et accessible
         return JwtDecoders.fromIssuerLocation("http://localhost:8080/realms/batch-alerte");
-    }
+    }*/
 
 }

@@ -28,4 +28,7 @@ public abstract class Utilisateur {
 
     @Column(name = "dateNaissance")
     private String dateNaissance;
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "bankCode")
+    private BankCode bankCode;
 }
