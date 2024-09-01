@@ -2,6 +2,7 @@ package com.adria.spring_oracle.config;
 
 import com.adria.spring_oracle.entities.BankTransaction;
 import com.adria.spring_oracle.entities.BankClient;
+import com.adria.spring_oracle.entities.NotificationStatus;
 import com.adria.spring_oracle.entities.TransactionStatistics;
 import com.adria.spring_oracle.repository.BankClientRepository;
 import com.adria.spring_oracle.repository.TransactionStatisticsRepository;
@@ -18,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @RequiredArgsConstructor
@@ -58,6 +60,10 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
         BankClient bankClient = optionalBankClient.get();
         bankTransaction.setBankClient(bankClient);
 
+        // Initialisation des indicateurs de succès
+        AtomicBoolean emailSuccess = new AtomicBoolean(false);
+        AtomicBoolean smsSuccess = new AtomicBoolean(false);
+
         // Envoyer les notifications selon la méthode spécifiée
         String notificationMethod = bankTransaction.getNotificationMethod();
         statistics.setTotalTransactions(statistics.getTotalTransactions() + 1);
@@ -70,6 +76,7 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                             try {
                                 emailService.sendTransactionEmail(bankTransaction);
                                 statistics.setSuccessfulEmails(statistics.getSuccessfulEmails() + 1);
+                                emailSuccess.set(true);
                             } catch (Exception e) {
                                 logger.error("Échec de l'envoi de l'email à: {}", email, e);
                                 statistics.setFailedEmails(statistics.getFailedEmails() + 1);
@@ -82,6 +89,7 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                             try {
                                 smsService.sendTransactionSms(bankTransaction);
                                 statistics.setSuccessfulSms(statistics.getSuccessfulSms() + 1);
+                                smsSuccess.set(true);
                             } catch (Exception e) {
                                 logger.error("Échec de l'envoi du SMS à: {}", phoneNumber, e);
                                 statistics.setFailedSms(statistics.getFailedSms() + 1);
@@ -95,6 +103,7 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                             try {
                                 emailService.sendTransactionEmail(bankTransaction);
                                 statistics.setSuccessfulEmails(statistics.getSuccessfulEmails() + 1);
+                                emailSuccess.set(true);
                             } catch (Exception e) {
                                 logger.error("Échec de l'envoi de l'email à: {}", email, e);
                                 statistics.setFailedEmails(statistics.getFailedEmails() + 1);
@@ -106,6 +115,7 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
                             try {
                                 smsService.sendTransactionSms(bankTransaction);
                                 statistics.setSuccessfulSms(statistics.getSuccessfulSms() + 1);
+                                smsSuccess.set(true);
                             } catch (Exception e) {
                                 logger.error("Échec de l'envoi du SMS à: {}", phoneNumber, e);
                                 statistics.setFailedSms(statistics.getFailedSms() + 1);
@@ -116,6 +126,15 @@ public class BankTransactionProcessor implements ItemProcessor<BankTransaction, 
             }
         } else {
             logger.warn("Aucune méthode de notification spécifiée pour la transaction: {}", bankTransaction);
+        }
+
+        // Déterminer le statut final de la notification
+        if (notificationMethod.equals("mail")) {
+            bankTransaction.setNotificationStatus(NotificationStatus.valueOf(emailSuccess.get() ? "SUCCESS" : "FAILED"));
+        } else if (notificationMethod.equals("sms")) {
+            bankTransaction.setNotificationStatus(NotificationStatus.valueOf(smsSuccess.get() ? "SUCCESS" : "FAILED"));
+        } else if (notificationMethod.equals("mail&&sms")) {
+            bankTransaction.setNotificationStatus(NotificationStatus.valueOf((emailSuccess.get() && smsSuccess.get()) ? "SUCCESS" : "FAILED"));
         }
 
         statisticsRepository.save(statistics);

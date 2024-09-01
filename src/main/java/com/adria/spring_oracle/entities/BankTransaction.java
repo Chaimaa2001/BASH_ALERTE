@@ -19,7 +19,7 @@ public class BankTransaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "userID", referencedColumnName = "userID")  // Spécifie la colonne qui fait référence à BankClient
+    @JoinColumn(name = "userID", referencedColumnName = "userID")
     @JsonIgnore
     private BankClient bankClient;
 
@@ -37,5 +37,9 @@ public class BankTransaction {
     private Double amount;
     private String typeChequier;
     private String referenceFacture;
-    private String notificationMethod; // Utiliser un champ plus descriptif
+    private String notificationMethod;
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus notificationStatus;
+
+
 }

@@ -1,8 +1,10 @@
 package com.adria.spring_oracle.controller;
 
 import com.adria.spring_oracle.entities.TransactionStatistics;
+import com.adria.spring_oracle.mappers.StatisticsService;
 import com.adria.spring_oracle.repository.TransactionStatisticsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class TransactionStatisticsController {
 
     private final TransactionStatisticsRepository statisticsRepository;
+    private final StatisticsService statisticsService;
 
     @GetMapping
     public ResponseEntity<List<TransactionStatistics>> getAllStatistics() {
@@ -25,9 +28,10 @@ public class TransactionStatisticsController {
         return ResponseEntity.ok(statisticsList);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TransactionStatistics> getStatisticsById(@PathVariable Long id) {
-        Optional<TransactionStatistics> statistics = statisticsRepository.findById(id);
-        return statistics.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/statistics/{id}")
+    public ResponseEntity<?> getStatisticsById(@PathVariable("id") Long id) {
+        List<TransactionStatistics> statistics = statisticsService.getTransactionStatistics(id);
+        return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
+
 }

@@ -55,6 +55,7 @@ public class BankTransactionService {
         dto.setReferenceFacture(transaction.getReferenceFacture());
         dto.setNotificationMethod(transaction.getNotificationMethod());
         dto.setBankClientID(transaction.getBankClient().getUserID());
+        dto.setStatus(transaction.getNotificationStatus().toString());
         return dto;
     }
     public List<String> findDistinctTransactionTypes() {

@@ -1,9 +1,9 @@
 package com.adria.spring_oracle.dto;
 
 import lombok.Data;
-
 import java.util.Date;
 
+@Data
 public class BankTransactionDTO {
     private Long id;
     private Date transactionDate;
@@ -13,6 +13,7 @@ public class BankTransactionDTO {
     private String referenceFacture;
     private String notificationMethod;
     private Long bankClientID;
+    private String status; // Nouveau champ pour le statut
 
     // Constructeurs, getters et setters
     public Long getId() {
@@ -78,5 +79,12 @@ public class BankTransactionDTO {
     public void setBankClientID(Long bankClientID) {
         this.bankClientID = bankClientID;
     }
-}
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}
